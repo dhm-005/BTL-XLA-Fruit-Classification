@@ -17,7 +17,7 @@ bun run dev
 
 Then open <http://localhost:5173/> in your browser.
 
-Run `uv run bash scripts/prestart.sh` and `uv run fastapi dev` from the `backend` directory, with PostgreSQL running in Docker Compose. See [../development.md](../development.md) for the complete setup.
+Run `uv run bash scripts/prestart.sh` and `uv run fastapi dev` from the `backend` directory, with PostgreSQL available. See [../development.md](../development.md) for the complete setup.
 
 To serve the frontend with FastAPI, run `bun run build` from the `frontend` directory and open `http://localhost:8000`.
 
@@ -30,14 +30,6 @@ If you are developing an API-only app and want to remove the frontend, you can d
 - Remove the `./frontend` directory.
 
 - In the `backend/app/main.py` file, remove the `app.frontend()` call.
-
-- In the `backend/Dockerfile` file, remove the frontend build stage and the `COPY --from=frontend-build` instruction.
-
-- In the `compose.override.yml` file, remove the `playwright` service.
-
-- In the `.github/workflows/deploy.yml` file, remove the **Set up Bun**, **Install frontend dependencies**, and **Build frontend** steps.
-
-- In the `.fastapicloudignore` file, remove the `!backend/app/frontend/` entry.
 
 Done, you now have an API-only app. 🤓
 
@@ -93,29 +85,22 @@ The frontend code is structured as follows:
 
 ## End-to-End Testing with Playwright
 
-The frontend includes initial end-to-end tests using Playwright. To run the tests, you need to have the Docker Compose stack running. Start the stack with the following command:
+The frontend includes end-to-end tests using Playwright. Start PostgreSQL and run the backend and frontend development server, then install Playwright's browser:
 
 ```bash
-docker compose run --rm backend bash scripts/prestart.sh
-docker compose up -d --wait backend
+bunx playwright install chromium
 ```
 
-Then, you can run the tests with the following command:
+Run the tests from the project root:
 
 ```bash
-bunx playwright test
+bun run --filter frontend test
 ```
 
 You can also run your tests in UI mode to see the browser and interact with it running:
 
 ```bash
 bunx playwright test --ui
-```
-
-To stop and remove the Docker Compose stack and clean the data created in tests, use the following command:
-
-```bash
-docker compose down -v
 ```
 
 To update the tests, navigate to the tests directory and modify the existing test files or add new ones as needed.
